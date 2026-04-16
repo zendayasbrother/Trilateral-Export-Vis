@@ -1,29 +1,37 @@
-import plotly.express as px
+import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
-from dbnomics import fetch_series
 
-dfs = []
+# 1. Load data and clean column names (removes the trailing spaces in your CSV)
+df = pd.read_csv('DBnomics time series.csv')
+df.columns = df.columns.str.strip()
 
-# Exports of goods and services (% of GDP) - Ghana
-df1 = fetch_series("AFDB/bbkawjf/NE.EXPO.GNFS.ZS.GHA")
-df1["series_id"] = df1[["provider_code", "dataset_code", "series_code"]].agg('/'.join, axis=1)
-dfs.append(df1)
-px.line(df1, x="period", y="value", title=df1.series_id[0]).show()
+print("Data loaded successfully.") 
 
-# Exports of goods and services (% of GDP) - Nigeria
-df2 = fetch_series("AFDB/bbkawjf/NE.EXPO.GNFS.ZS.NGA")
-df2["series_id"] = df2[["provider_code", "dataset_code", "series_code"]].agg('/'.join, axis=1)
-dfs.append(df2)
-px.line(df2, x="period", y="value", title=df2.series_id[0]).show()
+# 2. Assign columns directly (No 'Country' column exists in your CSV)
+# We use the exact names from your file
+exports_gha = df['GHA – Exports of goods and services (% of GDP)']
+exports_nig = df['NIG – Exports of goods and services (% of GDP)']
 
-# Annual – Foreign direct investment, net inflows (% of GDP) – China
-df3 = fetch_series("WB/JOB/A-BX.KLT.DINV.WD.GD.ZS-CHN")
-df3["series_id"] = df3[["provider_code", "dataset_code", "series_code"]].agg('/'.join, axis=1)
-dfs.append(df3)
-px.line(df3, x="period", y="value", title=df3.series_id[0]).show()
+fdi_chn = df['CHN – Annual Foreign direct investment, net inflows (% of GDP)']
+period = df['period']
 
-# Combine all data and plot
-df_all = pd.concat(dfs)
-fig = px.line(df_all, x="period", y="value", color="series_code", title="NUM EXPORTS VS FDI INFLOWS")
-fig.update_layout(legend={"xanchor": "right", "yanchor": "bottom"})
-fig.show()
+# 3. Plotting
+plt.figure(figsize=(10, 6))
+
+plt.scatter(exports_gha, fdi_chn, color='orange', label='Ghana')
+plt.scatter(exports_nig, fdi_chn, color='green', label='Nigeria')
+
+# 4. Adding labels (Using .iloc to avoid index errors)
+for i in range(len(df)):
+    plt.text(exports_gha.iloc[i], fdi_chn.iloc[i], f'{int(period.iloc[i])}', 
+             fontsize = 9, ha = 'right', color = 'orange')
+    plt.text(exports_nig.iloc[i], fdi_chn.iloc[i], f'{int(period.iloc[i])}', 
+             fontsize = 9, ha ='left', color = 'green')
+
+plt.xlabel('Exports of goods and services (% of GDP)')
+plt.ylabel('China FDI net inflows (% of GDP)')
+plt.title('FDI CHN vs. Exports - (% of GDP)')
+plt.legend()
+plt.grid(True)
+plt.show()

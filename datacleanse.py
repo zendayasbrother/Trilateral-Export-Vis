@@ -2,16 +2,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
+# 1. Load Data
 df = pd.read_csv('DBnomics time series.csv') 
-print("Data loaded successfully.")
 
-print("Column names")
+# 2. Clean Whitespace (Crucial for CSV/Database consistency)
+df.columns = df.columns.str.strip()
+
+print("Data loaded successfully.")
+print(f"Dimensions: {df.shape}")
+
 print(df.columns.tolist())
 
-
-# display first six rows 
-print("\n First nine rows (2012-2020)")
+print("\n--- First 9 Rows ---")
 print(df.head(9)) 
 
 # display dimensions of dataframe 
@@ -25,3 +27,6 @@ print(list(df))
 # display count of missing values#
 print("\n Missing values count: ")
 print(df.isnull().sum().reset_index(name = 'Missing Values Counted')) 
+
+for col in df.columns:
+  print(col, df[col].nunique(), len(df))
