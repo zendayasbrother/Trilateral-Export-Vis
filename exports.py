@@ -1,33 +1,37 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
-# Provided data (maybe the csv file)
-exports_gha = [0.627, 0.458, 0.83, 1.11, 0.942, 2.38, 2.03, 2.81, 0, 1.39, 2.2]
+# 1. Load data and clean column names (removes the trailing spaces in your CSV)
+df = pd.read_csv('DBnomics time series.csv')
+df.columns = df.columns.str.strip()
 
-exports_nig = [8.04, 1.11, 
-               1.67, 0.795, 0.471, 0.721, 
-              1.04, 1.67, 1.77, 1.85, 0.834]
+print("Data loaded successfully.") 
 
-fdi_chn = [64.96, 72.97, 123.13, 174.39, 216.42, 138.29, 143.03, 136.91, 153.72, 178.8, 149.69]
+# 2. Assign columns directly (No 'Country' column exists in your CSV)
+# We use the exact names from your file
+exports_gha = df['GHA – Exports of goods and services (% of GDP)']
+exports_nig = df['NIG – Exports of goods and services (% of GDP)']
 
-# Ensure all lists are the same length for simplicity
-period = [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
+fdi_chn = df['CHN – Annual Foreign direct investment, net inflows (% of GDP)']
+period = df['period']
 
+# 3. Plotting
+plt.figure(figsize=(10, 6))
 
-# Plot the scatter plots
-plt.figure(figsize = (10, 6))
+plt.scatter(exports_gha, fdi_chn, color='orange', label='Ghana')
+plt.scatter(exports_nig, fdi_chn, color='green', label='Nigeria')
 
-plt.scatter(exports_gha, fdi_chn, color = 'orange', label = 'Ghana')
-plt.scatter(exports_nig, fdi_chn, color ='green', label = 'Nigeria')
+# 4. Adding labels (Using .iloc to avoid index errors)
+for i in range(len(df)):
+    plt.text(exports_gha.iloc[i], fdi_chn.iloc[i], f'{int(period.iloc[i])}', 
+             fontsize = 9, ha = 'right', color = 'orange')
+    plt.text(exports_nig.iloc[i], fdi_chn.iloc[i], f'{int(period.iloc[i])}', 
+             fontsize = 9, ha ='left', color = 'green')
 
-# Adding labels for each point for clarity
-for i in range(len(exports_gha)):
-    plt.text(exports_gha[i], fdi_chn[i], f'{period[i]}', fontsize = 11, ha ='right', color = 'orange')
-    plt.text(exports_nig[i], fdi_chn[i], f'{period[i]}', fontsize = 11, ha = 'left', color = 'green')
-
-plt.xlabel('Exports to CHN (billions USD)')
-plt.ylabel('FDI outflows CHN (billions USD)')
-plt.title('FDI CHN vs. Exports to CHN - (in billions USD)')
+plt.xlabel('Exports of goods and services (% of GDP)')
+plt.ylabel('China FDI net inflows (% of GDP)')
+plt.title('FDI CHN vs. Exports - (% of GDP)')
 plt.legend()
 plt.grid(True)
 plt.show()
