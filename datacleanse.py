@@ -10,11 +10,9 @@ print("Column names")
 print(df.columns.tolist())
 
 
-# display first six rows 
-print("\n First nine rows (2012-2020)")
-print(df.head(9)) 
+print(df.head()) 
 
-# display dimensions of dataframe 
+
 print("\n Dimensions of dataframe")
 print(df.shape)  
 
@@ -27,4 +25,3 @@ print("\n Missing values count: ")
 print(df.isnull().sum().reset_index(name = 'Missing Values Counted')) 
 
 for col in df.columns:
-  print(col, df[col].nunique(), len(df))
