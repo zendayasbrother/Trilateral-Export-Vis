@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# implement OOP based data cleaning system 
+
 # 1. Load Data
 df = pd.read_csv('DBnomics time series.csv') 
 
