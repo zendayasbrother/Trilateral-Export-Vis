@@ -1,1 +1,12 @@
-# Add rest of data for plot.py and this file to reference
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+class ResearchEngine:
+    
+    def get_correlations(self):
+        return self.df.corr()
+    
+    
+    
+     
