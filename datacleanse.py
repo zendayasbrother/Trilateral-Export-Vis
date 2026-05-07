@@ -1,34 +1,30 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# implement OOP based data cleaning system 
+# implement OOP based EDA system 
 
 # 1. Load Data
-df = pd.read_csv('DBnomics time series.csv') 
-
-# 2. Clean Whitespace (Crucial for CSV/Database consistency)
+df = pd.read_csv('DBNomics time series.csv') 
 df.columns = df.columns.str.strip()
+df.columns = ['Year', 'GHA_Exports', 'NIG_Exports', 'CHN_FDI']
 
 print("Data loaded successfully.")
-print(f"Dimensions: {df.shape}")
+print(f"Initial Dimensions: {df.shape}")
 
-print(df.columns.tolist())
-
+# 2. Data Overview
 print("\n--- First 9 Rows ---")
 print(df.head(9)) 
 
-# display dimensions of dataframe 
-print("\n Dimensions of dataframe")
-print(df.shape)  
+print("\n--- Data Types ---")
+print(df.dtypes)
+
+print(df.describe())
+
 
 # display column names 
 print("\n Column names")
 print(list(df)) 
 
-# display count of missing values#
+# 3. Value Scan and Cleaning
 print("\n Missing values count: ")
-print(df.isnull().sum().reset_index(name = 'Missing Values Counted')) 
-
-for col in df.columns:
-  print(col, df[col].nunique(), len(df))
+print(df.isnull().sum())
