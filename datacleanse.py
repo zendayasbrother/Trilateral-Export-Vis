@@ -14,21 +14,22 @@ class DataCleaner:
         df = pd.read_csv('DBNomics time series.csv')  
         
         print("Data loaded successfully.")
-        print(f"Initial Dimensions: {df.shape}")
+        
+    def clean_data(self, df):
+        self.df = df.copy()
+        print(f"Initial Dimensions: {self.df.shape}")
 
 
         print("\n--- First 9 Rows ---")
-        print(df.head(9)) 
+        print(self.df.head(9)) 
 
         print("\n--- Data Types ---")
-        print(df.dtypes)
+        print(self.df.dtypes)
 
-        print(df.describe())
+        print(self.df.describe())
 
         print("\n Column names")
-        print(list(df)) 
+        print(list(self.df)) 
 
         print("\n Missing values count: ")
-        print(df.isnull().sum())
-        
-        return self.df
+        print(self.df.isnull().sum())

@@ -14,7 +14,7 @@ print("Imports successful!")
 class ResearchEngine(DataCleaner):
     
     def __init__(self, file_path):
-        DataCleaner().__init__(file_path)
+        super().__init__(file_path)
         
     def get_desc(self):
         stats = self.df.describe()
@@ -67,5 +67,5 @@ class ResearchEngine(DataCleaner):
             }
         
         with open('data.json', 'w') as f:
-            json.dump(self.master_data, f, indent=4)
+            json.dump(self.master_dict, f, indent=4)
         print("Master JSON generated for Web App.")

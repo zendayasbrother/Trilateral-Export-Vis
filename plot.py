@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-class Visualizer:
+class Visualizer(DataCleaner):
     
     def __init__(self, file_path):
-        DataCleaner.__init__(file_path)
+        super().__init__(file_path)
 
         
     def get_bar(self):
@@ -40,14 +40,14 @@ class Visualizer:
         self.fdi_chn = self.df['CHN_FDI'] 
         self.period = self.df['Year'] 
         plt.scatter(self.exports_gha, self.fdi_chn, color='orange', label='Ghana') 
-        plt.scatter(self.exports_nig, self.fdi_chn, color='green', label='Nigeria') 
+        plt.scatter(self.exports_nga, self.fdi_chn, color='green', label='Nigeria') 
         
         for i in range(len(self.df)):
             year = self.period.iloc[i]
             
             plt.text(self.exports_gha.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
                      fontsize = 9, ha = 'right', color = 'orange') 
-            plt.text(self.exports_nig.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
+            plt.text(self.exports_nga.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
                     fontsize = 9, ha ='left', color = 'green')
 
         plt.xlabel('Exports of goods and services (% of GDP)')
