@@ -1,5 +1,7 @@
+from datacleanse import DataCleaner 
 import numpy as np
 import pandas as pd
+import json
 import statsmodels
 import statsmodels.formula.api as smf
 import warnings
@@ -9,16 +11,10 @@ warnings.filterwarnings('ignore')
 print(f"Statsmodels version: {statsmodels.__version__}")
 print("Imports successful!")
 
-class ResearchEngine:
+class ResearchEngine(DataCleaner):
     
     def __init__(self, file_path):
-    
-        self.df = pd.read_csv(file_path)
-        self.df.columns = self.df.columns.str.strip()
-        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'CHN_FDI']
-        
-        self.df['Year'] = self.df['Year'].astype(str)
-        self.numeric_df = self.df.select_dtypes(include=[np.number])
+        DataCleaner().__init__(file_path)
         
     def get_desc(self):
         stats = self.df.describe()
@@ -46,10 +42,26 @@ class ResearchEngine:
             "Elasticity (NGA)": round(elast_nga, 5)
             }
     
-    def web_scrape(self):
-        pass  # Placeholder for future web scraping functionality
-    
-    
-    
-    
-     
+    def gen_json(self): 
+        self.time_series = self.df.to_dict(orient='records')
+        (stats, corr) = self.get_desc()
+        self.model_summary = self.get_model()
+        self.spearman = self.speartests()
+        
+        self.master_dict = {
+            "metadata": {
+                "source": "DBNomics",
+                "description": "Time series data on Ghana and Nigeria exports and China FDI inflows",
+                "variables": {
+                    "Year": "Year of observation",
+                    "GHA_Exports": "Ghana exports of goods and services (% of GDP)",
+                    "NGA_Exports": "Nigeria exports of goods and services (% of GDP)",
+                    "CHN_FDI": "China FDI net inflows (% of GDP)"
+                }
+            },
+            "statistics": {
+            "descriptive_stats": stats.to_dict(),
+            "correlation_matrix": corr.to_dict(),
+            "spearman_results": self.spearman
+        } 
+            }

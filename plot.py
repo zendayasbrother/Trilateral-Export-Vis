@@ -1,3 +1,4 @@
+from datacleanse import DataCleaner
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -5,15 +6,8 @@ import numpy as np
 class Visualizer:
     
     def __init__(self, file_path):
-        # Load and clean data immediately upon instantiation
-        self.df = pd.read_csv(file_path)
-        self.df.columns = self.df.columns.str.strip()
-        
-        
-        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'CHN_FDI']
-        
-        self.df['Year'] = self.df['Year'].astype(str)
-        self.numeric_df = self.df.select_dtypes(include=[pd.np.number])
+        DataCleaner.__init__(file_path)
+
         
     def get_bar(self):
         plt.figure(figsize=(10, 6))

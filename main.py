@@ -1,4 +1,4 @@
-from datacleanse import df
+from datacleanse import DataCleaner
 from plot import Visualizer
 from engine import ResearchEngine
 import numpy as np
