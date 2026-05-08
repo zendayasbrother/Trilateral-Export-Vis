@@ -25,7 +25,7 @@ class ResearchEngine:
         stats.loc['median'] = self.df.median(numeric_only=True)
         stats.loc['var'] = self.df.var(numeric_only=True)
         stats.loc['skew'] = self.df.skew(numeric_only=True)
-        corr = self.df.corr()
+        corr = self.df.corr(numeric_only=True)
         return stats, corr
     
     def get_model(self): 
@@ -33,16 +33,16 @@ class ResearchEngine:
         return model.summary().as_text()
     
     def speartests(self):
-        spearman_gha = self.df['CHN_FDI'].corr(self.df['GHA_Exports'], method='spearman')
-        spearman_nga = self.df['CHN_FDI'].corr(self.df['NGA_Exports'], method='spearman')
+        spearman_gha = float(self.df['CHN_FDI'].corr(self.df['GHA_Exports'], method='spearman'))
+        spearman_nga = float(self.df['CHN_FDI'].corr(self.df['NGA_Exports'], method='spearman'))
         # Elasticity calculations
-        elast_gha = spearman_gha * (self.df['GHA_Exports'].std() / self.df['CHN_FDI'].std())
-        elast_nga = spearman_nga * (self.df['NGA_Exports'].std() / self.df['CHN_FDI'].std())
+        elast_gha = float(spearman_gha * (self.df['GHA_Exports'].std() / self.df['CHN_FDI'].std()))
+        elast_nga = float(spearman_nga * (self.df['NGA_Exports'].std() / self.df['CHN_FDI'].std()))
         return {
-            "Spearman (GHA)": spearman_gha,
-            "Spearman (NGA)": spearman_nga, 
-            "Elasticity (GHA)": elast_gha, 
-            "Elasticity (NGA)": elast_nga
+            "Spearman (GHA)": round(spearman_gha, 4),
+            "Spearman (NGA)": round(spearman_nga, 4), 
+            "Elasticity (GHA)": round(elast_gha, 5), 
+            "Elasticity (NGA)": round(elast_nga, 5)
             }
     
     def web_scrape(self):
@@ -51,8 +51,11 @@ class ResearchEngine:
 
 if __name__ == "__main__":
     engine = ResearchEngine('DBNomics time series.csv')
-    results = engine.get_desc(), engine.get_model(), engine.speartests()
-    print(results)
+    (stats, corr), model_text = engine.get_desc(), engine.get_model() 
+    print("Descriptive Statistics:\n", stats)
+    print("\nCorrelation Matrix:\n", corr)
+    print("\nOLS Regression Summary:\n", model_text)
+    print("\nSpearman Correlations and Elasticities:\n", engine.speartests())
     
     
     
