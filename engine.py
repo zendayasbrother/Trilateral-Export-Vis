@@ -33,6 +33,7 @@ class ResearchEngine:
         return model.summary().as_text()
     
     def speartests(self):
+        # Granger Casuality Tests of some sort below
         spearman_gha = float(self.df['CHN_FDI'].corr(self.df['GHA_Exports'], method='spearman'))
         spearman_nga = float(self.df['CHN_FDI'].corr(self.df['NGA_Exports'], method='spearman'))
         # Elasticity calculations
