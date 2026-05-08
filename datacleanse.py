@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 
-# implement OOP based EDA system 
 
 # 1. Load Data
 df = pd.read_csv('DBNomics time series.csv') 
 df.columns = df.columns.str.strip()
-df.columns = ['Year', 'GHA_Exports', 'NIG_Exports', 'CHN_FDI']
+df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'CHN_FDI']
 
 print("Data loaded successfully.")
 print(f"Initial Dimensions: {df.shape}")
