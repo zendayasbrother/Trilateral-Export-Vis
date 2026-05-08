@@ -49,14 +49,6 @@ class ResearchEngine:
     def web_scrape(self):
         pass  # Placeholder for future web scraping functionality
     
-
-if __name__ == "__main__":
-    engine = ResearchEngine('DBNomics time series.csv')
-    (stats, corr), model_text = engine.get_desc(), engine.get_model() 
-    print("Descriptive Statistics:\n", stats)
-    print("\nCorrelation Matrix:\n", corr)
-    print("\nOLS Regression Summary:\n", model_text)
-    print("\nSpearman Correlations and Elasticities:\n", engine.speartests())
     
     
     

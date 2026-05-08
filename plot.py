@@ -48,7 +48,7 @@ class Visualizer:
         plt.scatter(self.exports_gha, self.fdi_chn, color='orange', label='Ghana') 
         plt.scatter(self.exports_nig, self.fdi_chn, color='green', label='Nigeria') 
         
-        for i in range(len(df)):
+        for i in range(len(self.df)):
             year = self.period.iloc[i]
             
             plt.text(self.exports_gha.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
@@ -63,8 +63,4 @@ class Visualizer:
         plt.grid(True)
         plt.show() 
         
-        
-        
-if __name__ == "__main__":
-    visualizer = Visualizer('DBNomics time series.csv')
-    visualizer.scatter()
+    
