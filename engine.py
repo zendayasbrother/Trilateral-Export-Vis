@@ -65,3 +65,7 @@ class ResearchEngine(DataCleaner):
             "spearman_results": self.spearman
         } 
             }
+        
+        with open('data.json', 'w') as f:
+            json.dump(self.master_data, f, indent=4)
+        print("Master JSON generated for Web App.")
