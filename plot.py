@@ -1,5 +1,6 @@
 from datacleanse import DataCleaner
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
@@ -9,8 +10,6 @@ class Visualizer(DataCleaner):
         super().__init__(file_path)
 
     def bar_exports(self): 
-        # Plotly Express works best with "long" data, but for "wide" data like yours,
-        # we can pass the columns directly.
         fig = px.bar(
             self.df, 
             x='Year', 
@@ -25,10 +24,8 @@ class Visualizer(DataCleaner):
         fig.show()
 
     def scatter(self): 
-        # We use Graph Objects (go) here to match your custom dual-text labeling logic verbatim
         fig = go.Figure()
 
-        # Ghana Trace
         fig.add_trace(go.Scatter(
             x=self.df['GHA_Exports'], 
             y=self.df['CHN_FDI'],
@@ -39,7 +36,6 @@ class Visualizer(DataCleaner):
             marker=dict(color='orange')
         ))
 
-        # Nigeria Trace
         fig.add_trace(go.Scatter(
             x=self.df['NGA_Exports'], 
             y=self.df['CHN_FDI'],
