@@ -9,7 +9,7 @@ class Visualizer(DataCleaner):
         super().__init__(file_path)
 
         
-    def get_bar(self):
+    def bar_exports(self):
         plt.figure(figsize=(10, 6))
         self.exports_gha = self.df['GHA_Exports'] 
         self.exports_nga = self.df['NGA_Exports'] 
@@ -30,7 +30,6 @@ class Visualizer(DataCleaner):
         plt.xlabel('Year')
         plt.ylabel('Exports of goods and services (% of GDP)')
         plt.title('Exports of goods and services (% of GDP) - Ghana vs. Nigeria')
-        plt.xticks(x, self.period)
         plt.legend()
         plt.grid(True)
         plt.show()
@@ -46,8 +45,6 @@ class Visualizer(DataCleaner):
         plt.scatter(self.exports_nga, self.fdi_chn, color='green', label='Nigeria') 
         
         for i in range(len(self.df)):
-            year = self.period.iloc[i]
-            
             plt.text(self.exports_gha.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
                      fontsize = 9, ha = 'right', color = 'orange') 
             plt.text(self.exports_nga.iloc[i], self.fdi_chn.iloc[i], f'{int(self.period.iloc[i])}', 
