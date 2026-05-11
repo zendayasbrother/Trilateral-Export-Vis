@@ -1,7 +1,7 @@
 from datacleanse import DataCleaner 
 import numpy as np
 import pandas as pd
-import statsmodels
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import warnings
 
