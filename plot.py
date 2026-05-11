@@ -25,12 +25,6 @@ class Visualizer(DataCleaner):
     
         plt.xticks(x, self.period)
     
-    
-        for i in range(len(self.df)):
-            plt.text(x[i] - width/2, self.exports_gha.iloc[i], f'{self.exports_gha.iloc[i]}', 
-                 fontsize=9, ha='center', va='bottom', color='orange')
-            plt.text(x[i] + width/2, self.exports_nga.iloc[i], f'{self.exports_nga.iloc[i]}',
-                 fontsize=9, ha='center', va='bottom', color='green')
         
         plt.xlabel('Year')
         plt.ylabel('Exports of goods and services (% of GDP)')
@@ -38,9 +32,11 @@ class Visualizer(DataCleaner):
         plt.legend()
         plt.grid()
         plt.show()
+        
+        # insert code for line chart here
 
     def scatter(self): 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 6)) # change scatterplot content to 1D analysis
         
         self.exports_gha = self.df['GHA_Exports'] 
         self.exports_nga = self.df['NGA_Exports'] 
