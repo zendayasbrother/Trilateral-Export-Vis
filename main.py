@@ -11,7 +11,7 @@ warnings.filterwarnings('ignore')
 
 if __name__ == "__main__":
     data_cleaner = DataCleaner('DBNomics time series.csv')
-    engine = ResearchEngine(;'DBNomics time series.csv')
+    engine = ResearchEngine('DBNomics time series.csv')
     (stats, corr), model_text = engine.get_desc(), engine.get_model() 
     print("Descriptive Statistics:\n", stats)
     print("\nCorrelation Matrix:\n", corr)
@@ -19,4 +19,4 @@ if __name__ == "__main__":
     print("\nSpearman Correlations and Elasticities:\n", engine.speartests())
     
     visualizer = Visualizer('DBNomics time series.csv')
-    visualizer.scatter()
+    visualizer.get_bar()

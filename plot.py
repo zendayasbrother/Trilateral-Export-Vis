@@ -14,20 +14,23 @@ class Visualizer(DataCleaner):
         self.exports_gha = self.df['GHA_Exports'] 
         self.exports_nga = self.df['NGA_Exports'] 
         self.period = self.df['Year'] 
-        plt.bar(self.period, self.exports_gha, color='orange', label='Ghana') 
-        plt.bar(self.period, self.exports_nga, color='green', label='Nigeria') 
+        width = 0.35
+        x = np.arange(len(self.period))
+        plt.bar(x - width/2, self.period, self.exports_gha, color='orange', label='Ghana') 
+        plt.bar(x + width/2, self.period, self.exports_nga, color='green', label='Nigeria') 
         
         for i in range(len(self.df)):
             year = self.period.iloc[i]
             
-            plt.text(i, self.exports_gha.iloc[i], f'{self.exports_gha.iloc[i]:.2f}', 
-                     fontsize = 9, ha = 'center', color = 'white') 
-            plt.text(i, self.exports_nga.iloc[i], f'{self.exports_nga.iloc[i]:.2f}', 
-                    fontsize = 9, ha ='center', color = 'white')
-
+            plt.text(x[i] - width/2, self.exports_gha.iloc[i], f'{int(self.period.iloc[i])}', 
+                     fontsize = 9, ha = 'center', color = 'orange')
+            plt.text(x[i] + width/2, self.exports_nga.iloc[i], f'{int(self.period.iloc[i])}',
+                    fontsize = 9, ha ='center', color = 'green')
+            
         plt.xlabel('Year')
-        plt.ylabel('Exports (% of GDP)')
-        plt.title('Year vs. Exports - (% of GDP)')
+        plt.ylabel('Exports of goods and services (% of GDP)')
+        plt.title('Exports of goods and services (% of GDP) - Ghana vs. Nigeria')
+        plt.xticks(x, self.period)
         plt.legend()
         plt.grid(True)
         plt.show()
