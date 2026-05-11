@@ -7,9 +7,6 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-print(f"Statsmodels version: {statsmodels.__version__}")
-print("Imports successful!")
-
 class ResearchEngine(DataCleaner):
     
     def __init__(self, file_path):
