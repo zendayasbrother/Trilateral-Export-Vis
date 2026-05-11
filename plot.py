@@ -9,29 +9,34 @@ class Visualizer(DataCleaner):
         super().__init__(file_path)
 
         
-    def bar_exports(self):
+    def bar_exports(self): 
         plt.figure(figsize=(10, 6))
         self.exports_gha = self.df['GHA_Exports'] 
         self.exports_nga = self.df['NGA_Exports'] 
         self.period = self.df['Year'] 
+    
         width = 0.35
-        x = np.arange(len(self.period))
-        plt.bar(x - width/2, self.period, self.exports_gha, color='orange', label='Ghana') 
-        plt.bar(x + width/2, self.period, self.exports_nga, color='green', label='Nigeria') 
-        
+        x = np.arange(len(self.period)) 
+
+    
+        plt.bar(x - width/2, self.exports_gha, width, color='orange', label='Ghana') 
+        plt.bar(x + width/2, self.exports_nga, width, color='green', label='Nigeria') 
+
+    
+        plt.xticks(x, self.period)
+    
+    
         for i in range(len(self.df)):
-            year = self.period.iloc[i]
-            
-            plt.text(x[i] - width/2, self.exports_gha.iloc[i], f'{int(self.period.iloc[i])}', 
-                     fontsize = 9, ha = 'center', color = 'orange')
-            plt.text(x[i] + width/2, self.exports_nga.iloc[i], f'{int(self.period.iloc[i])}',
-                    fontsize = 9, ha ='center', color = 'green')
-            
+            plt.text(x[i] - width/2, self.exports_gha.iloc[i], f'{self.exports_gha.iloc[i]}', 
+                 fontsize=9, ha='center', va='bottom', color='orange')
+            plt.text(x[i] + width/2, self.exports_nga.iloc[i], f'{self.exports_nga.iloc[i]}',
+                 fontsize=9, ha='center', va='bottom', color='green')
+        
         plt.xlabel('Year')
         plt.ylabel('Exports of goods and services (% of GDP)')
         plt.title('Exports of goods and services (% of GDP) - Ghana vs. Nigeria')
         plt.legend()
-        plt.grid(True)
+        plt.grid()
         plt.show()
 
     def scatter(self): 
