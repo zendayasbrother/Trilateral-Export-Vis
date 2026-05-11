@@ -11,8 +11,6 @@ class DataCleaner:
         
         self.df['Year'] = self.df['Year'].astype(str)
         self.numeric_df = self.df.select_dtypes(include=[np.number])
-        df = pd.read_csv('DBNomics time series.csv')  
-        
         print("Data loaded successfully.")
         
     def clean_data(self, df):
