@@ -4,8 +4,6 @@ from engine import ResearchEngine
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import statsmodels
-import statsmodels.formula.api as smf
 import warnings 
 
 warnings.filterwarnings('ignore')
