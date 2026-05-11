@@ -3,7 +3,7 @@ from plot import Visualizer
 from engine import ResearchEngine
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 import warnings 
 
 warnings.filterwarnings('ignore')
