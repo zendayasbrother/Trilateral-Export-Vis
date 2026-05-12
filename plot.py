@@ -20,12 +20,13 @@ class Visualizer(DataCleaner):
             title='Exports of goods and services (% of GDP) - Ghana vs. Nigeria'
         )
         
-        fig.update_layout(xaxis_type='category') # Ensures years aren't treated as continuous numbers
+        fig.update_layout(xaxis_type='category') 
         fig.show()
 
+# create a SCATTER plot to visualize the relationship between Exports and GDP for both countries
+# change to a visual simultaneously plotting all exports to all respective FDI values, with year labels for each point. 
     def scatter(self): 
-        fig = go.Figure()
-
+        fig = go.Figure() 
         fig.add_trace(go.Scatter(
             x=self.df['GHA_Exports'], 
             y=self.df['CHN_FDI'],
