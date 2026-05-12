@@ -9,6 +9,8 @@ class Visualizer(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
 
+# Create a line chart to simultaneously visualize the trends of Exports and FDI over time for both countries
+# bar chart shoulld be aggregated in some sort 
     def bar_exports(self): 
         fig = px.bar(
             self.df, 
@@ -24,7 +26,7 @@ class Visualizer(DataCleaner):
         fig.show()
 
 # create a SCATTER plot to visualize the relationship between Exports and GDP for both countries
-# change to a visual simultaneously plotting all exports to all respective FDI values, with year labels for each point. 
+# change to a 3D visual plotting continuous variables from all countries
     def scatter(self): 
         fig = go.Figure() 
         fig.add_trace(go.Scatter(

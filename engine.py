@@ -11,6 +11,8 @@ class ResearchEngine(DataCleaner):
     
     def __init__(self, file_path):
         super().__init__(file_path)
+        for self.c in self.df.columns: 
+            self.df.columns = self.df.columns.str.strip()
         
     def get_desc(self):
         stats = self.df.describe()
@@ -21,16 +23,19 @@ class ResearchEngine(DataCleaner):
         return stats, corr
     
     def get_model(self): 
+        # OLS Regression Test Summary and Linear Regression Graph + Handing N/A values
         model = smf.ols('CHN_FDI ~ GHA_Exports + NGA_Exports', data=self.df).fit()
         return model.summary().as_text()
     
     def speartests(self):
         # Granger Casuality Tests of some sort below
-        spearman_gha = float(self.df['CHN_FDI'].corr(self.df['GHA_Exports'], method='spearman'))
-        spearman_nga = float(self.df['CHN_FDI'].corr(self.df['NGA_Exports'], method='spearman'))
+        # calculate variable rates of new data
+        # Spearman Rank Correlations
+        spearman_gha = float()
+        spearman_nga = float()
         # Elasticity calculations
-        elast_gha = float(spearman_gha * (self.df['GHA_Exports'].std() / self.df['CHN_FDI'].std()))
-        elast_nga = float(spearman_nga * (self.df['NGA_Exports'].std() / self.df['CHN_FDI'].std()))
+        elast_gha = float()
+        elast_nga = float()
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 

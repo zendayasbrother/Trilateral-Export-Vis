@@ -19,4 +19,4 @@ if __name__ == "__main__":
     print("\nSpearman Correlations and Elasticities:\n", engine.speartests())
     
     visualizer = Visualizer('DBNomics time series.csv')
-    visualizer.bar_exports()
+    visualizer.scatter()

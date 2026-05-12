@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class DataCleaner: 
-    
+    # change dataset to exportsto CHN specifically
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path)
         self.df.columns = self.df.columns.str.strip()
@@ -30,4 +30,4 @@ class DataCleaner:
         print(list(self.df)) 
 
         print("\n Missing values count: ")
-        print(self.df.isnull().sum())
+        print(self.df.isnull().sum()) 
