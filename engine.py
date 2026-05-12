@@ -23,7 +23,7 @@ class ResearchEngine(DataCleaner):
         return stats, corr
     
     def get_model(self): 
-        # OLS Regression Test Summary and Linear Regression Graph + Handing N/A values
+        # OLS Regression Test Summary, Linear Regression Graph + Handing N/A values
         model = smf.ols('CHN_FDI ~ GHA_Exports + NGA_Exports', data=self.df).fit()
         return model.summary().as_text()
     
