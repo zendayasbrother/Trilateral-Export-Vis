@@ -65,8 +65,8 @@ class ResearchEngine(DataCleaner):
             "Spearman (NGA)": round(spearman_nga, 4), 
             "Elasticity (GHA)": round(elast_gha, 5), 
             "Elasticity (NGA)": round(elast_nga, 5),
-            "Fixed Rate of Change (GHA)": fixed_rate_gha,
-            "Fixed Rate of Change (NGA)": fixed_rate_nga + '%'
+            "Insterest Burden (GHA)":
+            "Insterest Burden (NGA)":
             }
     
     # Future function(s) for web scraping / generating JSON object 
