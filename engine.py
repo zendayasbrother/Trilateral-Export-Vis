@@ -12,7 +12,7 @@ class ResearchEngine(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
         self.df.columns = self.df.columns.str.strip()
-        tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
+        self.tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
         
     def get_desc(self):
         stats = self.df.describe()
@@ -25,9 +25,12 @@ class ResearchEngine(DataCleaner):
     def get_model(self, tgt_cols): 
         # OLS Regression Test Summary to fill in N/A values
         # identify and handle outliers in the dataset
-        for col in tgt_cols:
-            if col in self.df.columns:
-                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+        if tgt_cols is None: 
+            tgt_cols = self.tgt_cols
+        else:
+            for col in tgt_cols:
+                if col in self.df.columns:
+                    self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
     
         # Train the OLS regression model using the cleaned dataset
         train_df = self.df.dropna(subset=tgt_cols)
@@ -52,12 +55,14 @@ class ResearchEngine(DataCleaner):
         # Spearman Rank Correlations
         spearman_gha = float(self.df['GHA_Exports'].corr(self.df['GHA_EDS'], method='spearman'))
         spearman_nga = float(self.df['NGA_Exports'].corr(self.df['NGA_EDS'], method='spearman'))
+        
         # Coefficint of Variation for both countries 
-        coeff_gha = self.df['GHA_Exports'].std() / self.df['GHA_Exports'].mean()
-        coeff_nga = self.df['NGA_Exports'].std() / self.df['NGA_Exports'].mean()
+        coeff_gha = float((self.df['GHA_Exports'].std() / self.df['GHA_Exports']).mean())
+        coeff_nga = float((self.df['NGA_Exports'].std() / self.df['NGA_Exports']).mean())
+        
         #Calculate the Variable Rate Exposure (VRE) for both countries
-        vre_gha = self.df['GHA_VR'] / self.df['GHA_EDS']
-        vre_nga = self.df['NGA_VR'] / self.df['NGA_EDS']
+        vre_gha = float((self.df['GHA_VR'] / self.df['GHA_EDS']).mean())
+        vre_nga = float((self.df['NGA_VR'] / self.df['NGA_EDS']).mean())
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 
