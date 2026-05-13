@@ -24,7 +24,7 @@ class ResearchEngine(DataCleaner):
     
     def get_model(self): 
         # OLS Regression Test Summary, Linear Regression Graph + Handing N/A values
-        model = smf.ols('CHN_FDI ~ GHA_Exports + NGA_Exports', data=self.df).fit()
+        model = smf.ols()
         return model.summary().as_text()
     
     def speartests(self):
