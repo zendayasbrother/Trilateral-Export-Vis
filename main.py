@@ -16,4 +16,4 @@ if __name__ == "__main__":
     print("Descriptive Statistics:\n", stats)
     print("\nCorrelation Matrix:\n", corr)
     print("\nOLS Regression Summary and Linear Regression Graph:\n", model)
-    print("\nSpearman Correlations and Elasticities:\n")
+    print("\nSpearman Correlations and Sensitivities:\n", engine.speartests())

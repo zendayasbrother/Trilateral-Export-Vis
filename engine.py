@@ -32,7 +32,7 @@ class ResearchEngine(DataCleaner):
         # Train the OLS regression model using the cleaned dataset
         train_df = self.df.dropna(subset=tgt_cols)
     
-        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS'
+        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR'
         self.model = smf.ols(formula, data=train_df).fit()
     
         # Handle N/A and missing values and predict missing values using the trained model
@@ -48,25 +48,23 @@ class ResearchEngine(DataCleaner):
         
         return self.model.summary().as_text() + predicted_output # Predicted the GHA_Exports values as 2.067 for 2020 and 1.361 for 2024
     
-    def speartests(self, tgt_cols):
-        # Granger Casuality Tests of some sort below
-        # calculate variable rates of new data
+    def speartests(self):
         # Spearman Rank Correlations
-        spearman_gha = float()
-        spearman_nga = float()
-        # Elasticity calculations
-        elast_gha = float()
-        elast_nga = float()
-        #Calculate the interest service burdens for both countries (for loop should include specifics)
-        for cols in tgt_cols:
-            pass
+        spearman_gha = float(self.df['GHA_Exports'].corr(self.df['GHA_EDS'], method='spearman'))
+        spearman_nga = float(self.df['NGA_Exports'].corr(self.df['NGA_EDS'], method='spearman'))
+        # Coefficint of Variation for both countries 
+        coeff_gha = self.df['GHA_Exports'].std() / self.df['GHA_Exports'].mean()
+        coeff_nga = self.df['NGA_Exports'].std() / self.df['NGA_Exports'].mean()
+        #Calculate the Variable Rate Exposure (VRE) for both countries
+        vre_gha = self.df['GHA_VR'] / self.df['GHA_EDS']
+        vre_nga = self.df['NGA_VR'] / self.df['NGA_EDS']
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 
-            "Elasticity (GHA)": round(elast_gha, 5), 
-            "Elasticity (NGA)": round(elast_nga, 5),
-            "Insterest Burden (GHA)":
-            "Insterest Burden (NGA)":
+            "Coefficient of Variation (GHA)": round(coeff_gha, 4),
+            "Coefficient of Variation (NGA)": round(coeff_nga, 4),
+            "Variable Rate Exposure (GHA)": round(vre_gha, 4),
+            "Variable Rate Exposure (NGA)": round(vre_nga, 4)
             }
     
     # Future function(s) for web scraping / generating JSON object 

@@ -8,6 +8,7 @@ class Visualizer(DataCleaner):
     
     def __init__(self, file_path):
         super().__init__(file_path)
+        # include interest service burden calculations in the visualizations as well as the coefficient of variation for both countries to provide a more comprehensive analysis of the export trends and their implications for economic stability and growth
 
 # Create a dual line chart to simultaneously visualize the trends of Exports over time for both countries
     def dual_exports(self):
