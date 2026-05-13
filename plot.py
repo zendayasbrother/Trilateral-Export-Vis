@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
-class Visualizer(DataCleaner):
+class Visualiser(DataCleaner):
     
     def __init__(self, file_path):
         super().__init__(file_path)

@@ -17,3 +17,6 @@ if __name__ == "__main__":
     print("\nCorrelation Matrix:\n", corr)
     print("\nOLS Regression Summary and Linear Regression Graph:\n", model)
     print("\nSpearman Correlations and Sensitivities:\n", engine.speartests())
+    
+    visualiser = Visualiser('Exports time series.csv')
+    visualiser.bar_exports()
