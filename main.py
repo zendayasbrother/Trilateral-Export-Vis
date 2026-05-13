@@ -10,13 +10,10 @@ warnings.filterwarnings('ignore')
 
 
 if __name__ == "__main__":
-    data_cleaner = DataCleaner('DBNomics time series.csv')
-    engine = ResearchEngine('DBNomics time series.csv')
+    data_cleaner = DataCleaner('Exports time series.csv')
+    engine = ResearchEngine('Exports time series.csv')
     (stats, corr), model = engine.get_desc(), engine.get_model()
     print("Descriptive Statistics:\n", stats)
     print("\nCorrelation Matrix:\n", corr)
-    print("\nOLS Regression Summary and Linear Regression Graph:\n")
-    print("\nSpearman Correlations and Elasticities:\n", engine.speartests())
-    
-    visualizer = Visualizer('DBNomics time series.csv')
-    visualizer.scatter()
+    print("\nOLS Regression Summary and Linear Regression Graph:\n", model)
+    print("\nSpearman Correlations and Elasticities:\n")

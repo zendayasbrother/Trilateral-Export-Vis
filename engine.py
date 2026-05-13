@@ -11,8 +11,8 @@ class ResearchEngine(DataCleaner):
     
     def __init__(self, file_path):
         super().__init__(file_path)
-        for self.c in self.df.columns: 
-            self.df.columns = self.df.columns.str.strip()
+        self.df.columns = self.df.columns.str.strip()
+        tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
         
     def get_desc(self):
         stats = self.df.describe()
@@ -22,12 +22,33 @@ class ResearchEngine(DataCleaner):
         corr = self.df.corr(numeric_only=True)
         return stats, corr
     
-    def get_model(self): 
-        # OLS Regression Test Summary, Linear Regression Graph + Handing N/A values
-        model = smf.ols()
-        return model.summary().as_text()
+    def get_model(self, tgt_cols): 
+        # OLS Regression Test Summary to fill in N/A values
+        # identify and handle outliers in the dataset
+        for col in tgt_cols:
+            if col in self.df.columns:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
     
-    def speartests(self):
+        # Train the OLS regression model using the cleaned dataset
+        train_df = self.df.dropna(subset=tgt_cols)
+    
+        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS'
+        self.model = smf.ols(formula, data=train_df).fit()
+    
+        # Handle N/A and missing values and predict missing values using the trained model
+        self.missing_df = self.df[self.df['GHA_Exports'].isna()]
+    
+        if not self.missing_df.empty: 
+            self.predicted = self.model.predict(self.missing_df)
+            
+            self.predicted_values = pd.DataFrame({'Year': self.missing_df['Year'], 'Predicted_GHA_Exports': self.predicted})
+            predicted_output = "\n\n--- Predictions ---\n" + self.predicted_values.to_string(index=False)
+        else:
+            predicted_output = "\n\nNo missing values to predict."
+        
+        return self.model.summary().as_text() + predicted_output # Predicted the GHA_Exports values as 2.067 for 2020 and 1.361 for 2024
+    
+    def speartests(self, tgt_cols):
         # Granger Casuality Tests of some sort below
         # calculate variable rates of new data
         # Spearman Rank Correlations
@@ -36,11 +57,16 @@ class ResearchEngine(DataCleaner):
         # Elasticity calculations
         elast_gha = float()
         elast_nga = float()
+        #Calculate the interest service burdens for both countries (for loop should include specifics)
+        for cols in tgt_cols:
+            pass
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 
             "Elasticity (GHA)": round(elast_gha, 5), 
-            "Elasticity (NGA)": round(elast_nga, 5)
+            "Elasticity (NGA)": round(elast_nga, 5),
+            "Fixed Rate of Change (GHA)": fixed_rate_gha,
+            "Fixed Rate of Change (NGA)": fixed_rate_nga + '%'
             }
     
     # Future function(s) for web scraping / generating JSON object 
