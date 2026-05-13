@@ -9,29 +9,31 @@ class Visualizer(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
 
-# Create a line chart to simultaneously visualize the trends of Exports and FDI over time for both countries
-# bar chart shoulld be aggregated in some sort 
+# Create a dual line chart to simultaneously visualize the trends of Exports over time for both countries
+    def dual_exports(self):
+        pass
+    
+# Bar chart shoulld be aggregated in some sort against grouped periods (non-COVID vs. COVID) 
     def bar_exports(self): 
         fig = px.bar(
             self.df, 
-            x='Year', 
-            y=['GHA_Exports', 'NGA_Exports'],
+            x = 'Year', 
+            y = ['GHA_Exports', 'NGA_Exports'],
             barmode='group',
             color_discrete_map={'GHA_Exports': 'orange', 'NGA_Exports': 'green'},
-            labels={'value': 'Exports (% of GDP)', 'variable': 'Country'},
-            title='Exports of goods and services (% of GDP) - Ghana vs. Nigeria'
+            labels={'value': 'Exports (USD billions)', 'variable': 'Country'},
+            title='Exports to China (USD billions) - Ghana vs. Nigeria'
         )
         
         fig.update_layout(xaxis_type='category') 
         fig.show()
 
-# create a SCATTER plot to visualize the relationship between Exports and GDP for both countries
-# change to a 3D visual plotting continuous variables from all countries
-    def scatter(self): 
+# create a 3D SCATTER plot to visualize the relationship between Exports, Total EDS and Variable Rate for both countries
+def scatter(self): 
         fig = go.Figure() 
         fig.add_trace(go.Scatter(
             x=self.df['GHA_Exports'], 
-            y=self.df['CHN_FDI'],
+            y=self.df[''],
             mode='markers+text',
             name='Ghana',
             text=self.df['Year'],
@@ -41,7 +43,7 @@ class Visualizer(DataCleaner):
 
         fig.add_trace(go.Scatter(
             x=self.df['NGA_Exports'], 
-            y=self.df['CHN_FDI'],
+            y=self.df[''],
             mode='markers+text',
             name='Nigeria',
             text=self.df['Year'],
@@ -50,10 +52,9 @@ class Visualizer(DataCleaner):
         ))
 
         fig.update_layout(
-            title='FDI CHN vs. Exports - (% of GDP)',
-            xaxis_title='Exports of goods and services (% of GDP)',
-            yaxis_title='China FDI net inflows (% of GDP)',
-            template='plotly_white'
+            
         )
         
         fig.show()
+        
+    
