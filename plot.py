@@ -9,21 +9,53 @@ class Visualiser(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
         # include interest service burden calculations in the dual line chart
-        self.isb_gha = ((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports'] * 100
-        self.isb_nga = ((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports'] * 100
+        self.df['GHA_ISB'] = ((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports'] * 100
+        self.df['NGA_ISB'] = ((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports'] * 100
 
 # Create a dual line chart to simultaneously visualize the trends of ISBs over time for both countries
     def dual_isb(self):
+        isb_gha = 'GHA_ISB'
+        isb_nga = 'NGA_ISB'
+        
         fig = px.line(
             self.df, 
             x='Year', 
-            y = [self.isb_gha, self.isb_nga], 
+            y={isb_gha: "GHA", isb_nga: "NGA"},
             title="Interest Service Burden (%) over Time",
-            labels={'value': 'ISB % of Exports'} 
-            )
+            labels={'value': 'ISB % of Exports'},
+            color_discrete_map = {"GHA": "orange", "NGA": "green"}
+        )
+        
+        # Shade GHA (Orange)
+        fig.add_trace(
+            go.Scatter(
+                x = self.df['Year'], 
+                y = self.df[isb_gha],
+                fill='tozeroy', 
+                mode='none', 
+                name='GHA Shading', 
+                fillcolor='rgba(255, 165, 0, 0.3)',
+                showlegend=False))
+
+        # Shade NGA (Green)
+        fig.add_trace(
+            go.Scatter(
+                x = self.df['Year'], 
+                y = self.df[isb_nga], 
+                fill='tozeroy', 
+                mode='none', 
+                name='NGA Shading', 
+                fillcolor='rgba(0, 128, 0, 0.3)',
+                showlegend=False))
+        
+        fig.update_layout(
+            title_x=0.5, 
+            template='plotly_white', 
+            autosize=True
+        )
         
         fig.show()
-    
+        
 # Bar chart shoulld be aggregated in some sort against grouped periods (non-COVID vs. COVID) 
     def bar_exports(self): 
         # COVID grouping logic 
@@ -60,23 +92,31 @@ class Visualiser(DataCleaner):
     
         fig.show()
 
-# 3D SCATTER plot to visualize the relationship between Total Exports (by country), Total EDS and Variable Rate for both countries
-def scatter(self): 
-    # Create a 'Melted' dataframe for side-by-side 3D comparison
-    self.df_long = self.df.melt(
-        id_vars=['Year', 'CHN_LPR'], 
-        value_vars=['GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'NGA_EDS', 'GHA_VR', 'NGA_VR'],
-        var_name='Metric', 
-        value_name='Exports'
-    )
-    # # Plotting the 'Middle Ground'
-    fig = px.scatter_3d(
-        self.df_long, 
-        x='Exports', 
-        y='Debt', 
-        z='LPR', 
-        color='Country', 
-        size='Debt', 
-        opacity=0.8, 
-        title="West African Export-to-Debt Efficiency vs. China LPR"
+    def scatter(self): 
+        # Create a 'Melted' dataframe for side-by-side 3D comparison
+        self.df_long = self.df.melt(
+            id_vars=['Year', 'CHN_LPR'], 
+            value_vars=['GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'NGA_EDS', 'GHA_VR', 'NGA_VR'],
+            var_name='Metric', 
+            value_name = 'Value'
+        )
+
+        # Plotting logic using columns that actually exist in self.df_long
+        fig = px.scatter_3d(
+            self.df_long, 
+            x='Year',      
+            y='Value',     
+            z='CHN_LPR',   
+            color='Metric', 
+            size = 'Value',   
+            opacity = 0.8, 
+            title = "West African Export-to-Debt Efficiency vs. China LPR"
         ) 
+        
+        fig.update_layout(
+            title_x = 0.5, 
+            template = 'plotly_white', 
+            autosize = True
+        )
+        
+        fig.show()

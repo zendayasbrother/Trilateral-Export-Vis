@@ -65,15 +65,15 @@ class ResearchEngine(DataCleaner):
         coeff_nga = float((self.df['NGA_Exports'].std() / self.df['NGA_Exports'].mean()) * 100)
         
         #Calculate the Variable Rate Exposure (VRE) for both countries
-        vre_gha = float((self.df['GHA_VR'] / self.df['GHA_EDS'].mean())) # Expressed as a percentage
-        vre_nga = float((self.df['NGA_VR'] / self.df['NGA_EDS'].mean()))
+        vre_gha = float((self.df['GHA_VR'].mean() / self.df['GHA_EDS'].mean()) * 100) 
+        vre_nga = float((self.df['NGA_VR'].mean() / self.df['NGA_EDS'].mean()) * 100)
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 
-            "Coefficient of Variation (GHA)": round(coeff_gha, 4) + "%",
-            "Coefficient of Variation (NGA)": round(coeff_nga, 4) + "%",
-            "Variable Rate Exposure (GHA)": round(vre_gha, 4),
-            "Variable Rate Exposure (NGA)": round(vre_nga, 4)
+            "Coefficient of Variation (GHA)": f"{round(coeff_gha, 4)}%",
+            "Coefficient of Variation (NGA)": f"{round(coeff_nga, 4)}%",
+            "Variable Rate Exposure (GHA)": f"{round(vre_gha, 4)}%",
+            "Variable Rate Exposure (NGA)": f"{round(vre_nga, 4)}%"
             }
     
     # Future function(s) for web scraping / generating JSON object 

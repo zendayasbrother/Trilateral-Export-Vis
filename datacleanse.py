@@ -6,7 +6,7 @@ class DataCleaner:
     # append a native Chinese indicator to dataset for variety and fair calculations and to avoid any potential bias in the data
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path)
-        self.df.columns = self.df.columns.str.strip()
+        self.df.columns = self.df.columns.str.strip().str.replace(' ', '_').str.replace('–', '_')
         self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR', 'CHN_LPR']
         
         self.df['Year'] = self.df['Year'].astype(str)
