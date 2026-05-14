@@ -92,31 +92,44 @@ class Visualiser(DataCleaner):
     
         fig.show()
 
-    def scatter(self): 
-        # Create a 'Melted' dataframe for side-by-side 3D comparison
-        self.df_long = self.df.melt(
-            id_vars=['Year', 'CHN_LPR'], 
-            value_vars=['GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'NGA_EDS', 'GHA_VR', 'NGA_VR'],
-            var_name='Metric', 
-            value_name = 'Value'
+    def bubble(self): 
+        fig = px.scatter(
+            self.df, 
+            x='GHA_Exports', 
+            y='GHA_EDS',
+            size='CHN_LPR', 
+            color='Year',
+            hover_name='Year',
+            title="Ghana: Export Resilience vs Debt Burden (Bubble Size = China LPR)",
+            labels={'GHA_Exports': 'Total Exports', 'GHA_EDS': 'Total Debt'},
+            template='plotly_white'
         )
 
-        # Plotting logic using columns that actually exist in self.df_long
-        fig = px.scatter_3d(
-            self.df_long, 
-            x='Year',      
-            y='Value',     
-            z='CHN_LPR',   
-            color='Metric', 
-            size = 'Value',   
-            opacity = 0.8, 
-            title = "West African Export-to-Debt Efficiency vs. China LPR"
-        ) 
-        
-        fig.update_layout(
-            title_x = 0.5, 
-            template = 'plotly_white', 
-            autosize = True
+        self.df_long = self.df.melt(
+            id_vars=['Year', 'CHN_LPR'],
+            value_vars=['GHA_Exports', 'NGA_Exports'],
+            var_name='Country',
+            value_name='Exports'
         )
-        
+    
+    
+        self.df_long['Debt'] = self.df.melt(value_vars=['GHA_EDS', 'NGA_EDS'])['value']
+
+        fig = px.scatter(
+            self.df_long,
+            x="Exports",
+            y="Debt",
+            animation_frame="Year", 
+            animation_group="Country",
+            size="CHN_LPR",
+            color="Country",
+            hover_name="Country",
+            log_x=False, 
+            size_max=45,
+            range_x=[self.df_long['Exports'].min()*0.9, self.df_long['Exports'].max()*1.1],
+            range_y=[self.df_long['Debt'].min()*0.9, self.df_long['Debt'].max()*1.1],
+            title="Export-to-Debt Efficiency Over Time",
+            color_discrete_map={"GHA_Exports": "orange", "NGA_Exports": "green"}
+        )
+
         fig.show()
