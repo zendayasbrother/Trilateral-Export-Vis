@@ -77,3 +77,10 @@ class ResearchEngine(DataCleaner):
             }
     
     # Future function(s) for web scraping / generating JSON object 
+    def gen_json(self):
+        # Generate a JSON object containing the cleaned dataset and model results
+        self.json_output = {
+            "cleaned_data": self.df.to_dict(orient='records'),
+            "model_summary": self.model.summary().as_text(),
+            "spearman_results": self.speartests()
+        }

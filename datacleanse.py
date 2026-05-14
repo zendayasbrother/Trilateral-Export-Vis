@@ -3,7 +3,6 @@ import pandas as pd
 
 
 class DataCleaner: 
-    # append a native Chinese indicator to dataset for variety and fair calculations and to avoid any potential bias in the data
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path)
         self.df.columns = self.df.columns.str.strip().str.replace(' ', '_').str.replace('–', '_')
@@ -31,3 +30,11 @@ class DataCleaner:
 
         print("\n Missing values count: ")
         print(self.df.isnull().sum()) 
+        
+    def gen_json(self):
+        # Generate a JSON object containing the cleaned dataset
+        self.json_output = {
+            "loaded_data": self.df.to_dict(orient='records'), 
+            "cleaned_data": self.df.to_dict(orient='records')
+        }
+            

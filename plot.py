@@ -133,3 +133,43 @@ class Visualiser(DataCleaner):
         )
 
         fig.show()
+    
+    
+    def gen_json(self):
+        # Generate a JSON object containing the visualization data and configuration
+        self.json_output = {
+            "visualization_data": self.df.to_dict(orient='records'),
+            "visualization_config": {
+                "dual_isb_chart": {
+                    "x": "Year",
+                    "y": ["GHA_ISB", "NGA_ISB"],
+                    "title": "Interest Service Burden (%) over Time",
+                    "labels": {"value": 'ISB % of Exports'},
+                    "color_discrete_map": {"GHA_ISB": "orange", "NGA_ISB": "green"},
+                    "template": 'plotly_white'
+                },
+                
+                "bar_chart": {
+                    "x": "Period",
+                    "y": "Exports",
+                    "color": "Country",
+                    "barmode": "group",
+                    "color_discrete_map": {'GHA_Exports': 'orange', 'NGA_Exports': 'green'},
+                    "labels": {'Exports': 'Average Exports (USD Billions)', 'Country': 'Nation'},
+                    "title": 'Export Resilience: Pre-COVID vs. COVID Impact',
+                    "category_orders": {'Period': ['Pre-COVID', 'COVID']},
+                    "template": 'plotly_white'
+                },
+                
+                "bubble_chart": {
+                    "x": "GHA_Exports",
+                    "y": "GHA_EDS",
+                    "size": "CHN_LPR",
+                    "color": "Year",
+                    "hover_name": "Year",
+                    "title": "Ghana: Export Resilience vs Debt Burden (Bubble Size = China LPR)",
+                    "labels": {"GHA_Exports": 'Total Exports', 'GHA_EDS': 'Total Debt'},
+                    "template": 'plotly_white'
+                }
+            }
+        }
