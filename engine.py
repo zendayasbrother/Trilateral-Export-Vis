@@ -12,7 +12,7 @@ class ResearchEngine(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
         self.df.columns = self.df.columns.str.strip()
-        self.tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
+        self.tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR', 'CHN_LPR']
         
     def get_desc(self):
         stats = self.df.describe()
@@ -35,17 +35,21 @@ class ResearchEngine(DataCleaner):
         # Train the OLS regression model using the cleaned dataset
         train_df = self.df.dropna(subset=tgt_cols)
     
-        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR'
+        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR'
         self.model = smf.ols(formula, data=train_df).fit()
     
         # Handle N/A and missing values and predict missing values using the trained model
-        self.missing_df = self.df[self.df['GHA_Exports'].isna()]
+        self.missing_df = self.df[self.df.isna().any(axis=1)]
     
         if not self.missing_df.empty: 
             self.predicted = self.model.predict(self.missing_df)
-            
-            self.predicted_values = pd.DataFrame({'Year': self.missing_df['Year'], 'Predicted_GHA_Exports': self.predicted})
+            self.predicted_values = pd.DataFrame({'Year': self.missing_df['Year'], 'Predicted': self.predicted})
             predicted_output = "\n\n--- Predictions ---\n" + self.predicted_values.to_string(index=False)
+            for col in tgt_cols:
+                # append the predicted values to all N/A values in the original dataframe
+                is_na = self.df[col].isna()
+                if is_na.any():
+                    self.df.loc[is_na, col] = self.predicted
         else:
             predicted_output = "\n\nNo missing values to predict."
         
@@ -57,17 +61,17 @@ class ResearchEngine(DataCleaner):
         spearman_nga = float(self.df['NGA_Exports'].corr(self.df['NGA_EDS'], method='spearman'))
         
         # Coefficint of Variation for both countries 
-        coeff_gha = float((self.df['GHA_Exports'].std() / self.df['GHA_Exports']).mean())
-        coeff_nga = float((self.df['NGA_Exports'].std() / self.df['NGA_Exports']).mean())
+        coeff_gha = float((self.df['GHA_Exports'].std() / self.df['GHA_Exports'].mean()) * 100) # Expressed as a percentage
+        coeff_nga = float((self.df['NGA_Exports'].std() / self.df['NGA_Exports'].mean()) * 100)
         
         #Calculate the Variable Rate Exposure (VRE) for both countries
-        vre_gha = float((self.df['GHA_VR'] / self.df['GHA_EDS']).mean())
-        vre_nga = float((self.df['NGA_VR'] / self.df['NGA_EDS']).mean())
+        vre_gha = float((self.df['GHA_VR'] / self.df['GHA_EDS'].mean())) # Expressed as a percentage
+        vre_nga = float((self.df['NGA_VR'] / self.df['NGA_EDS'].mean()))
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
             "Spearman (NGA)": round(spearman_nga, 4), 
-            "Coefficient of Variation (GHA)": round(coeff_gha, 4),
-            "Coefficient of Variation (NGA)": round(coeff_nga, 4),
+            "Coefficient of Variation (GHA)": round(coeff_gha, 4) + "%",
+            "Coefficient of Variation (NGA)": round(coeff_nga, 4) + "%",
             "Variable Rate Exposure (GHA)": round(vre_gha, 4),
             "Variable Rate Exposure (NGA)": round(vre_nga, 4)
             }

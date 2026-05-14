@@ -7,7 +7,7 @@ class DataCleaner:
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path)
         self.df.columns = self.df.columns.str.strip()
-        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR']
+        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR', 'CHN_LPR']
         
         self.df['Year'] = self.df['Year'].astype(str)
         self.numeric_df = self.df.select_dtypes(include=[np.number])
