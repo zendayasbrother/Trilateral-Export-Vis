@@ -1,7 +1,7 @@
 # Exports-of-China-West-Africa
 Revamped version of an online module DS / ML final project. Emphasis on Exploratory Data Analysis and Analytics.
 
-QUESTION: NEIGHBOURS AND REVITALISATION - HOW DOES WEST AFRICAN EXPORT RESILIENCE HOLD WITH CHINESE XYZ?
+QUESTION: NEIGHBOURS AND REVITALISATION - HOW DOES WEST AFRICAN EXPORT RESILIENCE HOLD WITH CHINESE LPR?
 
 Dataset:  Combination featuring reputable sources including official World Bank, Trading Economies, etc. 
 
