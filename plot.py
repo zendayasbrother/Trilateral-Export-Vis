@@ -102,7 +102,7 @@ class Visualiser(ResearchEngine):
         
         df_long = self.df.melt(
             id_vars=['Year', 'CHN_LPR'],
-            value_vars=['GHA_Ratio', 'NGA_Ratio'],
+            value_vars=['GHA', 'NGA'],
             var_name='Country', value_name='Leverage'
         )
         
@@ -116,7 +116,14 @@ class Visualiser(ResearchEngine):
                 y='Leverage',
                 color='Country',
                 facet_col='Country',
-                trendline="ols",  # Now safe because data is sanitized
+                trendline="ols",
+                hover_name='Year',           
+                 hover_data={
+                    'Year': False,           
+                    'CHN_LPR': ':.2f',       
+                    'Leverage': ':.3f',      
+                    'Country': True
+                },
                 title="West African Debt Leverage vs. China LPR",
                 labels={'CHN_LPR': 'China LPR (%)', 'Leverage': 'Debt Stock / Exports'},
                 template='plotly_white'
