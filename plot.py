@@ -1,10 +1,14 @@
-from datacleanse import DataCleaner
+from engine import ResearchEngine
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
 import pandas as pd
 import numpy as np
+import json
 
-class Visualiser(DataCleaner):
+class Visualiser(ResearchEngine):
     
     def __init__(self, file_path):
         super().__init__(file_path)
@@ -92,84 +96,86 @@ class Visualiser(DataCleaner):
     
         fig.show()
 
-    def bubble(self): 
-        fig = px.scatter(
-            self.df, 
-            x='GHA_Exports', 
-            y='GHA_EDS',
-            size='CHN_LPR', 
-            color='Year',
-            hover_name='Year',
-            title="Ghana: Export Resilience vs Debt Burden (Bubble Size = China LPR)",
-            labels={'GHA_Exports': 'Total Exports', 'GHA_EDS': 'Total Debt'},
-            template='plotly_white'
-        )
-
-        self.df_long = self.df.melt(
+    def lpr_impact_facets(self): 
+        self.df['GHA_Ratio'] = self.df['GHA_EDS'] / self.df['GHA_Exports'].replace(0, np.nan) 
+        self.df['NGA_Ratio'] = self.df['NGA_EDS'] / self.df['NGA_Exports'].replace(0, np.nan)
+        
+        df_long = self.df.melt(
             id_vars=['Year', 'CHN_LPR'],
-            value_vars=['GHA_Exports', 'NGA_Exports'],
-            var_name='Country',
-            value_name='Exports'
+            value_vars=['GHA_Ratio', 'NGA_Ratio'],
+            var_name='Country', value_name='Leverage'
         )
-    
-    
-        self.df_long['Debt'] = self.df.melt(value_vars=['GHA_EDS', 'NGA_EDS'])['value']
+        
+        
+        df_clean = df_long.replace([np.inf, -np.inf], np.nan).dropna(subset=['Leverage', 'CHN_LPR'])
 
+        # 4. Plot
         fig = px.scatter(
-            self.df_long,
-            x="Exports",
-            y="Debt",
-            animation_frame="Year", 
-            animation_group="Country",
-            size="CHN_LPR",
-            color="Country",
-            hover_name="Country",
-            log_x=False, 
-            size_max=45,
-            range_x=[self.df_long['Exports'].min()*0.9, self.df_long['Exports'].max()*1.1],
-            range_y=[self.df_long['Debt'].min()*0.9, self.df_long['Debt'].max()*1.1],
-            title="Export-to-Debt Efficiency Over Time",
-            color_discrete_map={"GHA_Exports": "orange", "NGA_Exports": "green"}
-        )
-
+                df_clean, 
+                x='CHN_LPR', 
+                y='Leverage',
+                color='Country',
+                facet_col='Country',
+                trendline="ols",  # Now safe because data is sanitized
+                title="West African Debt Leverage vs. China LPR",
+                labels={'CHN_LPR': 'China LPR (%)', 'Leverage': 'Debt Stock / Exports'},
+                template='plotly_white'
+            )
+        
         fig.show()
     
     
     def gen_json(self):
-        # Generate a JSON object containing the visualization data and configuration
+        stats_summary = self.speartests()
+    
         self.json_output = {
-            "visualization_data": self.df.to_dict(orient='records'),
-            "visualization_config": {
-                "dual_isb_chart": {
-                    "x": "Year",
-                    "y": ["GHA_ISB", "NGA_ISB"],
-                    "title": "Interest Service Burden (%) over Time",
-                    "labels": {"value": 'ISB % of Exports'},
-                    "color_discrete_map": {"GHA_ISB": "orange", "NGA_ISB": "green"},
-                    "template": 'plotly_white'
+        "metadata": {
+            "source": "Trilateral-Export-Vis",
+            "last_updated": "2026-05-15",
+            "observations": len(self.df)
+        },
+        "statistical_insights": stats_summary,
+        "visualization_data": self.df.to_dict(orient='records'),
+        "visualization_config": {
+            "dual_isb_chart": {
+                "x": "Year",
+                "y": ["GHA_ISB", "NGA_ISB"],
+                "title": "Interest Service Burden (%) over Time",
+                "labels": {"value": "ISB % of Exports"},
+                "color_discrete_map": {"GHA_ISB": "orange", "NGA_ISB": "green"},
+                "template": "plotly_white"
+            },
+            "bar_chart": {
+                "x": "Period",
+                "y": "Exports",
+                "color": "Country",
+                "barmode": "group",
+                "color_discrete_map": {"GHA_Exports": "orange", "NGA_Exports": "green"},
+                "labels": {"Exports": "Average Exports (USD Billions)", "Country": "Nation"},
+                "title": "Export Resilience: Pre-COVID vs. COVID Impact",
+                "category_orders": {"Period": ["Pre-COVID", "COVID"]},
+                "template": "plotly_white"
+            },
+            "lpr_impact_facets": {
+                "x": "CHN_LPR",
+                "y": "Leverage",
+                "facet_col": "Country",
+                "color": "Country",
+                "trendline": "ols",
+                "hover_data": ["Year"],
+                "title": "Leverage Sensitivity: West African Debt Ratios vs. Chinese LPR",
+                "labels": {
+                    "CHN_LPR": "China Loan Prime Rate (%)",
+                    "Leverage": "Debt Stock per $1 Export",
+                    "Country": "Nation"
                 },
-                
-                "bar_chart": {
-                    "x": "Period",
-                    "y": "Exports",
-                    "color": "Country",
-                    "barmode": "group",
-                    "color_discrete_map": {'GHA_Exports': 'orange', 'NGA_Exports': 'green'},
-                    "labels": {'Exports': 'Average Exports (USD Billions)', 'Country': 'Nation'},
-                    "title": 'Export Resilience: Pre-COVID vs. COVID Impact',
-                    "category_orders": {'Period': ['Pre-COVID', 'COVID']},
-                    "template": 'plotly_white'
-                },
-                
-                "bubble_chart": {
-                    "x": "GHA_Exports",
-                    "y": "GHA_EDS",
-                    "size": "CHN_LPR",
-                    "color": "Year",
-                    "hover_name": "Year",
-                    "title": "Ghana: Export Resilience vs Debt Burden (Bubble Size = China LPR)",
-                    "labels": {"GHA_Exports": 'Total Exports', 'GHA_EDS': 'Total Debt'},
-                    "template": 'plotly_white'
-                }
+                "template": "plotly_white",
+                "notes": "Facetted view highlights why GHA (-0.53) and NGA (0.53) Spearman ranks diverge."
             }
         }
+    }
+    
+        with open('viz_output.json', 'w') as f:
+            json.dump(self.json_output, f, indent=4)
+        
+        return self.json_output

@@ -22,4 +22,4 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
     
     visualiser = Visualiser('Exports time series.csv')
-    visualiser.bubble()
+    visualiser.lpr_impact_facets()
