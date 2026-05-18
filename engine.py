@@ -24,7 +24,7 @@ class ResearchEngine(DataCleaner):
     
     def get_model(self, tgt_cols): 
         # OLS Regression Test Summary to fill in N/A values
-        # identify and handle outliers in the dataset
+        # identify and handle outliers in the dataset (add Fixed Asset Investment to CSV + a native indicator in USD billions | impute N/A here)
         if tgt_cols is None: 
             tgt_cols = self.tgt_cols
         else:
