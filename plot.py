@@ -14,24 +14,16 @@ class Visualiser(ResearchEngine):
     def __init__(self, file_path):
         super().__init__(file_path)
         pio.renderers.default = "browser"
-        tgt_cols = ['GHA_EDS', 'GHA_VR', 'CHN_LPR', 'GHA_Exports']
+        tgt_cols = self.continuous_cols + self.step_cols
         for col in tgt_cols:
             if col in self.df.columns:
                 if self.df[col].dtype == 'object':
                     self.df[col] = self.df[col].astype(str).str.replace(r'[^\d\.]', '', regex=True)
-                
-                # errors='coerce' turns invalid strings into NaN so they don't break the code
+                    
                 self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
                 
-        # interest service burden calculations for the dual line chart
-        self.df['GHA_ISB'] = ((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports'] * 100
-        self.df['NGA_ISB'] = ((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports'] * 100
-        
-        # Export ratio calculations for regression based scatterplot
-        self.df['GHA_Ratio'] = self.df['GHA_EDS'] / self.df['GHA_Exports'].replace(0, np.nan) 
-        self.df['NGA_Ratio'] = self.df['NGA_EDS'] / self.df['NGA_Exports'].replace(0, np.nan)
 
-# Create a dual line chart to simultaneously visualize the trends of ISBs over time for both countries
+    # Create a dual line chart to simultaneously visualize Chinese closing inds. trends over time
     def dual_isb(self):
         isb_gha = 'GHA_ISB'
         isb_nga = 'NGA_ISB'
@@ -111,6 +103,7 @@ class Visualiser(ResearchEngine):
     
         fig.show()
 
+    # Combination scatterplot visual of Chinese indicator(s) against West African with a regression trendline
     def lpr_impact_facets(self): 
         # Correctly capture your newly created ratio properties
         df_long = self.df.melt(

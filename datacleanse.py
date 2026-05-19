@@ -6,12 +6,12 @@ class DataCleaner:
     def __init__(self, file_path):
         self.df = pd.read_csv(file_path)
         self.df.columns = self.df.columns.str.strip().str.replace(' ', '_').str.replace('–', '_')
-        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR', 'CHN_LPR', 'CHN_RRR']
+        self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR', 'CHN_LPR', 'CHN_RRR', 'CHN_FAI', 'CHN_FX']
         
         self.df['Year'] = self.df['Year'].astype(str)
         
         # CRITICAL FIX: Force policy step strings with N/A text into floats at ingestion
-        for col in ['CHN_LPR', 'CHN_RRR']:
+        for col in ['CHN_LPR', 'CHN_RRR', 'CHN_FAI', 'CHN_FX']:
             self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
             
         self.numeric_df = self.df.select_dtypes(include=[np.number])

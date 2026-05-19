@@ -22,4 +22,3 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
     
     visualiser = Visualiser('Trade Int. time series.csv')
-    visualiser.lpr_impact_facets()
