@@ -2,6 +2,7 @@ from engine import ResearchEngine
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas as pd
@@ -12,6 +13,7 @@ class Visualiser(ResearchEngine):
     
     def __init__(self, file_path):
         super().__init__(file_path)
+        pio.renderers.default = "browser"
         tgt_cols = ['GHA_EDS', 'GHA_VR', 'CHN_LPR', 'GHA_Exports']
         for col in tgt_cols:
             if col in self.df.columns:

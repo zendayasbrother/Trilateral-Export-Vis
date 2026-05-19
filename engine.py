@@ -39,37 +39,39 @@ class ResearchEngine(DataCleaner):
             for col in tgt_cols:
                 if col in self.df.columns:
                     self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+                    
+        self.df['Year'] = pd.to_numeric(self.df['Year'], errors='coerce')
     
         step_imputation_log = "\n--- Administrative Policy Step Imputations (Linear Regression Trend) ---\n"
-        step_cols_present = [c for c in self.step_cols if c in self.df.columns]
+        predicted_output = ""
         
-        if step_cols_present:
-            years_nas = self.df[self.df[step_cols_present].isna().any(axis=1)]['Year'].tolist()
-            
-            if years_nas:
-                self.df['Year'] = pd.to_numeric(self.df['Year'], errors='coerce')
+        
+        # Dynamically scanning all active target features for gaps
+        for col in tgt_cols:
+            if col in self.df.columns:
+                is_na = self.df[col].isna()
                 
-                for col in step_cols_present:
-                    is_na = self.df[col].isna()
-                    if is_na.any():
+                if is_na.any():
+                    # Check if the missing column belongs to China's Step Policy Group
+                    if col in self.step_cols:
                         train_step = self.df.dropna(subset=[col])
                         step_trend_model = smf.ols(f'{col} ~ Year', data=train_step).fit()
                         
                         predicted_steps = step_trend_model.predict(self.df[is_na])
+                        
+                        step_imputation_log += f"\nCalculated Trend Lines for [{col}]:\n"
+                        log_df = pd.DataFrame({'Year': self.df.loc[is_na, 'Year'], f'Predicted_{col}': predicted_steps})
+                        step_imputation_log += log_df.to_string(index=False) + "\n"
+                    
                         self.df.loc[is_na, col] = predicted_steps
-                
-                step_imputation_log += self.df[self.df['Year'].isin(years_nas)][['Year'] + step_cols_present].to_string(index=False)
-            else:
-                step_imputation_log += "No missing policy step values discovered.\n"
-        else:
-            step_imputation_log += "No policy step columns matched the dataset index.\n"
 
+        # Now that the step indicators are filled, we train the main model
         train_df = self.df.dropna(subset=self.step_cols)
         formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR + CHN_RRR'
         self.model = smf.ols(formula, data=train_df).fit()
     
+        # Scan again to handle continuous market trade flows (e.g., Ghana 2020 & 2024)
         self.missing_df = self.df[self.df.isna().any(axis=1)]
-        predicted_output = ""
     
         if not self.missing_df.empty: 
             self.predicted = self.model.predict(self.missing_df)
@@ -78,16 +80,15 @@ class ResearchEngine(DataCleaner):
                 if col in self.df.columns:
                     is_na = self.df[col].isna()
                     
-                    if is_na.any():
-                        if col in self.continuous_cols:
-                            predicted_output += f"\n\n--- Market Flow OLS Predictions Applied to [{col}] ---\n"
-                            predicted_values = pd.DataFrame({'Year': self.df.loc[is_na, 'Year'], f'Predicted_{col}': self.predicted[is_na]})
-                            predicted_output += predicted_values.to_string(index=False)
-                            self.df.loc[is_na, col] = self.predicted
-                        else:
-                            predicted_output += f"\n[System Notice] Skipped OLS imputation for step-policy column: {col}."
+                    if is_na.any() and col in self.continuous_cols:
+                        predicted_output += f"\n\n--- Market Flow OLS Predictions Applied to [{col}] ---\n"
+                        predicted_values = pd.DataFrame({'Year': self.df.loc[is_na, 'Year'], f'Predicted_{col}': self.predicted[is_na]})
+                        predicted_output += predicted_values.to_string(index=False)
+                        
+                        # Commit core assignment
+                        self.df.loc[is_na, col] = self.predicted
         else:
-            predicted_output = "\n\nNo missing (continuous) values to predict."
+            predicted_output = "\n\nNo continuous market targets missing values to predict."
         
         return self.model.summary().as_text() + "\n" + step_imputation_log + predicted_output
 
@@ -106,10 +107,3 @@ class ResearchEngine(DataCleaner):
             "Variable Rate Exposure (GHA)": f"{round(vre_gha, 4)}%",
             "Variable Rate Exposure (NGA)": f"{round(vre_nga, 4)}%"
             }
-    
-    def gen_json(self):
-        self.json_output = {
-            "cleaned_data": self.df.to_dict(orient='records'),
-            "model_summary": self.model.summary().as_text(),
-            "spearman_results": self.speartests()
-        }
