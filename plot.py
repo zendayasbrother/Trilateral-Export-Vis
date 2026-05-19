@@ -101,15 +101,17 @@ class Visualiser(ResearchEngine):
         fig.show()
 
     def lpr_impact_facets(self): 
-        
+        # Correctly capture your newly created ratio properties
         df_long = self.df.melt(
             id_vars=['Year', 'CHN_LPR'],
-            value_vars=['GHA', 'NGA'],
+            value_vars=['GHA_Ratio', 'NGA_Ratio'],
             var_name='Country', value_name='Leverage'
         )
         
+        # Clean up labels for presentation view
+        df_long['Country'] = df_long['Country'].replace({'GHA_Ratio': 'Ghana', 'NGA_Ratio': 'Nigeria'})
         
-        df_clean = df_long.replace([np.inf, -np.inf], np.nan).dropna(subset=['Leverage', 'CHN_LPR'])
+        df_clean = df_long.replace([np.inf, -np.inf], np.nan).dropna(subset=['Leverage', 'CHN_LPR']
 
         # 4. Plot
         fig = px.scatter(

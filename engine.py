@@ -17,6 +17,11 @@ class ResearchEngine(DataCleaner):
         self.step_cols = ['CHN_LPR', 'CHN_RRR'] # Policy-controlled intervals
         self.tgt_cols = self.continuous_cols + self.step_cols
         
+        for col in self.step_cols:
+            if col in self.df.columns:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+                self.df[col] = self.df[col].bfill().ffill()
+        
     def get_desc(self):
         stats = self.df.describe()
         stats.loc['median'] = self.df.median(numeric_only=True)
@@ -34,16 +39,11 @@ class ResearchEngine(DataCleaner):
             for col in tgt_cols:
                 if col in self.df.columns:
                     self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
-    
-        for col in self.step_cols:
-            if col in self.df.columns and self.df[col].isna().any():
-                # Backfill and Forward fills to fill N/A values
-                self.df[col] = self.df[col].bfill().ffill()
                 
         # Train the OLS regression model using the cleaned dataset
         train_df = self.df.dropna(subset=self.step_cols)
     
-        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR, CHN_RRR'
+        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR + CHN_RRR'
         self.model = smf.ols(formula, data=train_df).fit()
     
         # Handle N/A and missing values and predict missing values using the trained model

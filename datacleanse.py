@@ -9,9 +9,14 @@ class DataCleaner:
         self.df.columns = ['Year', 'GHA_Exports', 'NGA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_EDS', 'NGA_VR', 'CHN_LPR', 'CHN_RRR']
         
         self.df['Year'] = self.df['Year'].astype(str)
+        
+        # CRITICAL FIX: Force policy step strings with N/A text into floats at ingestion
+        for col in ['CHN_LPR', 'CHN_RRR']:
+            self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+            
         self.numeric_df = self.df.select_dtypes(include=[np.number])
         print("Data loaded successfully.")
-        
+            
     def clean_data(self, df):
         self.df = df.copy()
         print(f"Initial Dimensions: {self.df.shape}")

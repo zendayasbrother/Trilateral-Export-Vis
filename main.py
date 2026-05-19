@@ -10,8 +10,8 @@ warnings.filterwarnings('ignore')
 
 
 if __name__ == "__main__":
-    data_cleaner = DataCleaner('Exports time series.csv')
-    engine = ResearchEngine('Exports time series.csv')
+    data_cleaner = DataCleaner('Trade Int. time series.csv')
+    engine = ResearchEngine('Trade Int. time series.csv')
     (stats, corr), model = engine.get_desc(), engine.get_model(engine.tgt_cols)
     spear_results = engine.speartests()
     print("Descriptive Statistics:\n", stats)
@@ -21,5 +21,5 @@ if __name__ == "__main__":
     for key, value in spear_results.items():
         print(f"{key}: {value}")
     
-    visualiser = Visualiser('Exports time series.csv')
+    visualiser = Visualiser('Trade Int. time series.csv')
     visualiser.lpr_impact_facets()
