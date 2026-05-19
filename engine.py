@@ -14,65 +14,88 @@ class ResearchEngine(DataCleaner):
         self.df.columns = self.df.columns.str.strip()
         
         self.continuous_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
-        self.step_cols = ['CHN_LPR', 'CHN_RRR'] # Policy-controlled intervals
+        self.step_cols = ['CHN_LPR', 'CHN_RRR'] 
         self.tgt_cols = self.continuous_cols + self.step_cols
         
-        for col in self.step_cols:
+        for col in self.tgt_cols:
             if col in self.df.columns:
                 self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
-                self.df[col] = self.df[col].bfill().ffill()
         
     def get_desc(self):
-        stats = self.df.describe()
-        stats.loc['median'] = self.df.median(numeric_only=True)
-        stats.loc['var'] = self.df.var(numeric_only=True)
-        stats.loc['skew'] = self.df.skew(numeric_only=True)
-        corr = self.df.corr(numeric_only=True)
+        temp_df = self.df.copy()
+        for col in self.step_cols:
+            temp_df[col] = temp_df[col].bfill().ffill()
+        stats = temp_df.describe()
+        stats.loc['median'] = temp_df.median(numeric_only=True)
+        stats.loc['var'] = temp_df.var(numeric_only=True)
+        stats.loc['skew'] = temp_df.skew(numeric_only=True)
+        corr = temp_df.corr(numeric_only=True)
         return stats, corr
     
-    def get_model(self, tgt_cols): 
-        # OLS Regression Test Summary to fill in N/A values (continuous variable / inds only)
-        # identify and handle outliers
+    def get_model(self, tgt_cols=None): 
         if tgt_cols is None: 
             tgt_cols = self.tgt_cols
         else:
             for col in tgt_cols:
                 if col in self.df.columns:
                     self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
-                
-        # Train the OLS regression model using the cleaned dataset
-        train_df = self.df.dropna(subset=self.step_cols)
     
+        step_imputation_log = "\n--- Administrative Policy Step Imputations (Linear Regression Trend) ---\n"
+        step_cols_present = [c for c in self.step_cols if c in self.df.columns]
+        
+        if step_cols_present:
+            years_nas = self.df[self.df[step_cols_present].isna().any(axis=1)]['Year'].tolist()
+            
+            if years_nas:
+                self.df['Year'] = pd.to_numeric(self.df['Year'], errors='coerce')
+                
+                for col in step_cols_present:
+                    is_na = self.df[col].isna()
+                    if is_na.any():
+                        train_step = self.df.dropna(subset=[col])
+                        step_trend_model = smf.ols(f'{col} ~ Year', data=train_step).fit()
+                        
+                        predicted_steps = step_trend_model.predict(self.df[is_na])
+                        self.df.loc[is_na, col] = predicted_steps
+                
+                step_imputation_log += self.df[self.df['Year'].isin(years_nas)][['Year'] + step_cols_present].to_string(index=False)
+            else:
+                step_imputation_log += "No missing policy step values discovered.\n"
+        else:
+            step_imputation_log += "No policy step columns matched the dataset index.\n"
+
+        train_df = self.df.dropna(subset=self.step_cols)
         formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR + CHN_RRR'
         self.model = smf.ols(formula, data=train_df).fit()
     
-        # Handle N/A and missing values and predict missing values using the trained model
         self.missing_df = self.df[self.df.isna().any(axis=1)]
+        predicted_output = ""
     
         if not self.missing_df.empty: 
             self.predicted = self.model.predict(self.missing_df)
-            self.predicted_values = pd.DataFrame({'Year': self.missing_df['Year'], 'Predicted': self.predicted})
-            predicted_output = "\n\n--- Predictions ---\n" + self.predicted_values.to_string(index=False)
+            
             for col in tgt_cols:
-                # append the predicted values to all N/A values in the original dataframe
-                is_na = self.df[col].isna()
-                if is_na.any():
-                    self.df.loc[is_na, col] = self.predicted
+                if col in self.df.columns:
+                    is_na = self.df[col].isna()
+                    
+                    if is_na.any():
+                        if col in self.continuous_cols:
+                            predicted_output += f"\n\n--- Market Flow OLS Predictions Applied to [{col}] ---\n"
+                            predicted_values = pd.DataFrame({'Year': self.df.loc[is_na, 'Year'], f'Predicted_{col}': self.predicted[is_na]})
+                            predicted_output += predicted_values.to_string(index=False)
+                            self.df.loc[is_na, col] = self.predicted
+                        else:
+                            predicted_output += f"\n[System Notice] Skipped OLS imputation for step-policy column: {col}."
         else:
-            predicted_output = "\n\nNo missing values to predict."
+            predicted_output = "\n\nNo missing (continuous) values to predict."
         
-        return self.model.summary().as_text() + predicted_output # Predicted the GHA_Exports values as 2.067 for 2020 and 1.361 for 2024
-    
+        return self.model.summary().as_text() + "\n" + step_imputation_log + predicted_output
+
     def speartests(self):
-        # Spearman Rank Correlations
         spearman_gha = float(self.df['GHA_Exports'].corr(self.df['GHA_EDS'], method='spearman'))
         spearman_nga = float(self.df['NGA_Exports'].corr(self.df['NGA_EDS'], method='spearman'))
-        
-        # Coefficint of Variation for both countries 
-        coeff_gha = float((self.df['GHA_Exports'].std() / self.df['GHA_Exports'].mean()) * 100) # Expressed as a percentage
+        coeff_gha = float((self.df['GHA_Exports'].std() / self.df['GHA_Exports'].mean()) * 100) 
         coeff_nga = float((self.df['NGA_Exports'].std() / self.df['NGA_Exports'].mean()) * 100)
-        
-        #Calculate the Variable Rate Exposure (VRE) for both countries
         vre_gha = float((self.df['GHA_VR'].mean() / self.df['GHA_EDS'].mean()) * 100) 
         vre_nga = float((self.df['NGA_VR'].mean() / self.df['NGA_EDS'].mean()) * 100)
         return {
@@ -84,9 +107,7 @@ class ResearchEngine(DataCleaner):
             "Variable Rate Exposure (NGA)": f"{round(vre_nga, 4)}%"
             }
     
-    # Future function(s) for web scraping / generating JSON object 
     def gen_json(self):
-        # Generate a JSON object containing the cleaned dataset and model results
         self.json_output = {
             "cleaned_data": self.df.to_dict(orient='records'),
             "model_summary": self.model.summary().as_text(),

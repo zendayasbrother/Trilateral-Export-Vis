@@ -2,6 +2,7 @@ from engine import ResearchEngine
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import pandas as pd
@@ -12,6 +13,16 @@ class Visualiser(ResearchEngine):
     
     def __init__(self, file_path):
         super().__init__(file_path)
+        pio.renderers.default = "browser"
+        tgt_cols = ['GHA_EDS', 'GHA_VR', 'CHN_LPR', 'GHA_Exports']
+        for col in tgt_cols:
+            if col in self.df.columns:
+                if self.df[col].dtype == 'object':
+                    self.df[col] = self.df[col].astype(str).str.replace(r'[^\d\.]', '', regex=True)
+                
+                # errors='coerce' turns invalid strings into NaN so they don't break the code
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+                
         # interest service burden calculations for the dual line chart
         self.df['GHA_ISB'] = ((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports'] * 100
         self.df['NGA_ISB'] = ((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports'] * 100
@@ -111,7 +122,7 @@ class Visualiser(ResearchEngine):
         # Clean up labels for presentation view
         df_long['Country'] = df_long['Country'].replace({'GHA_Ratio': 'Ghana', 'NGA_Ratio': 'Nigeria'})
         
-        df_clean = df_long.replace([np.inf, -np.inf], np.nan).dropna(subset=['Leverage', 'CHN_LPR']
+        df_clean = df_long.replace([np.inf, -np.inf], np.nan).dropna(subset=['Leverage', 'CHN_LPR'])
 
         # 4. Plot
         fig = px.scatter(
