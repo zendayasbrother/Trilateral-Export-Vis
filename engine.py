@@ -12,7 +12,10 @@ class ResearchEngine(DataCleaner):
     def __init__(self, file_path):
         super().__init__(file_path)
         self.df.columns = self.df.columns.str.strip()
-        self.tgt_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR', 'CHN_LPR']
+        
+        self.continuous_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
+        self.step_cols = ['CHN_LPR', 'CHN_RRR'] # Policy-controlled intervals
+        self.tgt_cols = self.continuous_cols + self.step_cols
         
     def get_desc(self):
         stats = self.df.describe()
@@ -23,8 +26,8 @@ class ResearchEngine(DataCleaner):
         return stats, corr
     
     def get_model(self, tgt_cols): 
-        # OLS Regression Test Summary to fill in N/A values
-        # identify and handle outliers in the dataset (add Fixed Asset Investment to CSV + a native indicator in USD billions | impute N/A here)
+        # OLS Regression Test Summary to fill in N/A values (continuous variable / inds only)
+        # identify and handle outliers
         if tgt_cols is None: 
             tgt_cols = self.tgt_cols
         else:
@@ -32,10 +35,15 @@ class ResearchEngine(DataCleaner):
                 if col in self.df.columns:
                     self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
     
+        for col in self.step_cols:
+            if col in self.df.columns and self.df[col].isna().any():
+                # Backfill and Forward fills to fill N/A values
+                self.df[col] = self.df[col].bfill().ffill()
+                
         # Train the OLS regression model using the cleaned dataset
-        train_df = self.df.dropna(subset=tgt_cols)
+        train_df = self.df.dropna(subset=self.step_cols)
     
-        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR'
+        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR, CHN_RRR'
         self.model = smf.ols(formula, data=train_df).fit()
     
         # Handle N/A and missing values and predict missing values using the trained model
