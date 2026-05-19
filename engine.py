@@ -65,12 +65,10 @@ class ResearchEngine(DataCleaner):
                     
                         self.df.loc[is_na, col] = predicted_steps
 
-        # Now that the step indicators are filled, we train the main model
         train_df = self.df.dropna(subset=self.step_cols)
         formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR + CHN_RRR'
         self.model = smf.ols(formula, data=train_df).fit()
     
-        # Scan again to handle continuous market trade flows (e.g., Ghana 2020 & 2024)
         self.missing_df = self.df[self.df.isna().any(axis=1)]
     
         if not self.missing_df.empty: 
@@ -90,7 +88,7 @@ class ResearchEngine(DataCleaner):
         else:
             predicted_output = "\n\nNo continuous market targets missing values to predict."
         
-        return self.model.summary().as_text() + "\n" + step_imputation_log + predicted_output
+        return self.model.summary().as_text() + "\n" + step_imputation_log + predicted_output # Imputed values for 2014/5 values for China and 2020/4 values for Ghanaian exports to China
 
     def speartests(self):
         spearman_gha = float(self.df['GHA_Exports'].corr(self.df['GHA_EDS'], method='spearman'))
