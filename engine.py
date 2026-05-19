@@ -39,7 +39,7 @@ class ResearchEngine(DataCleaner):
         corr = temp_df.corr(numeric_only=True)
         return stats, corr
     
-    def get_model(self, tgt_cols=None): 
+    def get_model(self, tgt_cols): 
         if tgt_cols is None: 
             tgt_cols = self.tgt_cols
         else:
@@ -49,12 +49,18 @@ class ResearchEngine(DataCleaner):
                     
         self.df['Year'] = pd.to_numeric(self.df['Year'], errors='coerce')
     
-        train_df = self.df.dropna(subset=tgt_cols)
-    
-        formula = 'GHA_Exports ~ GHA_EDS + GHA_VR + NGA_Exports + NGA_EDS + NGA_VR + CHN_LPR + CHN_RRR + CHN_FAI + CHN_FX'
-        self.model = smf.ols(formula, data=train_df).fit()
+        gha_model = smf.ols('GHA_Exports ~ GHA_EDS + GHA_VR + CHN_LPR + CHN_FX', data=self.df).fit()
+        self.gha_model = gha_model
         
-        return self.model.summary().as_text() 
+        nga_model = smf.ols('NGA_Exports ~ NGA_EDS + NGA_VR + CHN_LPR + CHN_FX', data=self.df).fit()
+        self.nga_model = nga_model
+        
+        model = "MODEL 1: GHANA PREDICTORS"
+        model += gha_model.summary().as_text()
+        model += "MODEL 2: NIGERIA PREDICTORS"
+        model += nga_model.summary().as_text()
+        
+        return model
     
     def speartests(self):
         spearman_gha = float(self.df['GHA_Exports'].corr(self.df['GHA_EDS'], method='spearman'))
@@ -66,9 +72,8 @@ class ResearchEngine(DataCleaner):
         vre_gha = float((self.df['GHA_VR'].mean() / self.df['GHA_EDS'].mean()) * 100) 
         vre_nga = float((self.df['NGA_VR'].mean() / self.df['NGA_EDS'].mean()) * 100)
         
-        isb_gha = float(((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports'] * 100)
-        isb_nga = float(((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports'] * 100)
-
+        isb_gha = float((((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports']).mean())
+        isb_nga = float((((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports']).mean())
         
         return {
             "Spearman (GHA)": round(spearman_gha, 4),
@@ -77,8 +82,8 @@ class ResearchEngine(DataCleaner):
             "Coefficient of Variation (NGA)": f"{round(coeff_nga, 4)}%",
             "Variable Rate Exposure (GHA)": f"{round(vre_gha, 4)}%",
             "Variable Rate Exposure (NGA)": f"{round(vre_nga, 4)}%",
-            "Interest Service Burden (GHA)": f"£{round(isb_gha, 4)}",
-            "Interest Service Burden (NGA)": f"£{round(isb_nga, 4)}%"
+            "Interest Service Burden (GHA)": f"£{round(isb_gha, 3)}",
+            "Interest Service Burden (NGA)": f"£{round(isb_nga, 3)}"
         }
     
     def gen_json(self):
