@@ -3,14 +3,14 @@ Revamped Version of an Online Module Project (DS / ML Final Project)
 
 This repo is a data-driven project centered on Exploratory Data Analysis (EDA) and analytics, exploring a trilateral trade relationship between China, Nigeria and Ghana
 
-KEY RESEARCH QUESTION:
+## KEY RESEARCH QUESTION:
 
 "NEIGHBOURS AND REVITALISATION - HOW DOES WEST AFRICAN EXPORT RESILIENCE HOLD WITH CHINESE BANKING BENCHMARKS IN RETURN?"
 
 This project seeks to analyze the interplay between Chinese economic policies, specifically the LPR, and the resilience of West African exports. Using robust datasets and statistical methodologies, it aims to provide insightful visualizations and analytics illustrating this economic relationship.
 
 
-Dataset
+## DATASET
 
 The analysis is powered by a combined dataset curated from reputable sources, including:
 
@@ -20,10 +20,8 @@ The analysis is powered by a combined dataset curated from reputable sources, in
 
 • Additional authenticated data pipelines.
 
-The dataset was preprocessed extensively to ensure accuracy and quality for analysis.
 
-
-Tech Stack
+## TECH STACK
 
 A rich combination of tools and technologies was utilized to achieve the project’s goals:
 
@@ -36,9 +34,9 @@ A rich combination of tools and technologies was utilized to achieve the project
 • Statsmodels: Introductory statistics and modeling heuristics.Together, these tools empower the project to deliver meaningful insights with visual and computational clarity.
 
 
-Scope & Features
+## Scope & Features
 
-Core Analysis
+### Core Analysis
 
 • Exploratory Data Analysis (EDA): Understanding trends, anomalies, and causal relationships through comprehensive exploratory tools.
 
@@ -47,11 +45,11 @@ Core Analysis
 • Interactive Visualizations: Using Plotly to depict multidimensional data trends in clear, accessible formats.
 
 
-Extended Ventures
+## Extended Ventures
 
-This project serves as a precursor to an extended, mathematically intensive analysis of the Digital Silk Road Initiative — a Chinese economic policy impacting trilateral trade relationships. The extended analysis:
+This project serves as a precursor to an extended, mathematically intensive analysis of the Digital Silk Road (DSR) Initiative — a Chinese economic policy impacting global trade. The extended analysis:
 
-• Enhances focus on the trilateral trade dynamics.
+• Enhances focus on the trilateral trade dynamics in the context of energy
 
 • Bridges outcomes into a unified website using a JSON data bridge for efficient visualization dissemination.
 
