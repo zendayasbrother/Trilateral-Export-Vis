@@ -61,13 +61,3 @@ Future Directions
 • Website Deployment: Culminating this research into a user-facing website to enable broader access to findings
 
 • Mathematical Deep Dive: Expanding on machine learning models to predict long-term impacts under various economic scenarios and urilising game theory to support
-
-
-Contributing
-
-Contributions, issues, and suggestions are welcome! If you’d like to contribute to this project, feel free to fork this repo, submit a pull request, or create an issue for enhancement or fixes.
-
-
-License
-
-MIT License
