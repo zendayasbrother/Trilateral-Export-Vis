@@ -13,7 +13,6 @@ class ResearchEngine(DataCleaner):
         super().__init__(file_path)
         self.df.columns = self.df.columns.str.strip()
         
-        # Categorized targets from Ver. 1 for dynamic data management
         self.continuous_cols = ['GHA_Exports', 'GHA_EDS', 'GHA_VR', 'NGA_Exports', 'NGA_EDS', 'NGA_VR']
         self.step_cols = ['CHN_LPR', 'CHN_RRR', 'CHN_FAI', 'CHN_FX']
         self.tgt_cols = self.continuous_cols + self.step_cols
