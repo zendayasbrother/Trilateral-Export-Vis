@@ -25,6 +25,9 @@ class Visualiser(ResearchEngine):
 
     # Create a dual line chart to simultaneously visualize Chinese closing inds. trends over time
     def dual_isb(self):
+        self.df['GHA_ISB'] = ((self.df['GHA_EDS'] - self.df['GHA_VR']) * 0.05 + (self.df['GHA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['GHA_Exports']
+        self.df['NGA_ISB'] = ((self.df['NGA_EDS'] - self.df['NGA_VR']) * 0.05 + (self.df['NGA_VR'] * self.df['CHN_LPR'] / 100)) / self.df['NGA_Exports']
+        
         isb_gha = 'GHA_ISB'
         isb_nga = 'NGA_ISB'
         
@@ -105,11 +108,14 @@ class Visualiser(ResearchEngine):
 
     # Combination scatterplot visual of Chinese indicator(s) against West African with a regression trendline
     def lpr_impact_facets(self): 
-        # Correctly capture your newly created ratio properties
+        
+        self.df['GHA_Ratio'] = self.df['GHA_EDS'] / self.df['GHA_Exports']
+        self.df['NGA_Ratio'] = self.df['NGA_EDS'] / self.df['NGA_Exports']
+        
         df_long = self.df.melt(
             id_vars=['Year', 'CHN_LPR'],
             value_vars=['GHA_Ratio', 'NGA_Ratio'],
-            var_name='Country', value_name='Leverage'
+            var_name='Country', value_name='Leverage' # melted column names for clarity
         )
         
         # Clean up labels for presentation view
@@ -133,7 +139,7 @@ class Visualiser(ResearchEngine):
                     'Country': True
                 },
                 title="West African Debt Leverage vs. China LPR",
-                labels={'CHN_LPR': 'China LPR (%)', 'Leverage': 'Debt Stock / Exports'},
+                labels={'CHN_LPR': 'China LPR (%)', 'Leverage': 'Lev (Debt Stock /Exports) %'},
                 template='plotly_white'
             )
         
